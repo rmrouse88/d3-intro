@@ -34,7 +34,7 @@ d3.csv("https://gist.githubusercontent.com/curran/a08a1080b88344b0c8a7/raw/d546e
         
         x_selector = d3.select("#dash-container").append("select").attr("id", "x_selector").on("change", on_x_change);
         
-        y_selector = d3.select("#dash-container").append("select").attr("id", "y_selector")
+        y_selector = d3.select("#dash-container").append("select").attr("id", "y_selector").on("change", on_y_change);
         // .on("change", on_y_change);
 
         x_options = x_selector.selectAll("option")
@@ -86,11 +86,23 @@ d3.csv("https://gist.githubusercontent.com/curran/a08a1080b88344b0c8a7/raw/d546e
             return y_range_array;
         };
 
-        console.log(get_x_range())
-        console.log(get_y_range())
+        function get_range(label) {
+            var range_array = []
+            range_array.push(d3.min(data, function(d) { return d.label}))
+            range_array.push(d3.max(data, function(d) { return d.label}))
+            return range_array;
+        };
 
         var x_axis_scale = d3.scaleLinear().domain(get_x_range()).range([25,650])
         var y_axis_scale = d3.scaleLinear().domain(get_y_range()).range([25,450])
+
+        var d_x_scale = function(domain) {
+            return d3.scaleLinear().domain(domain).range([25,650])
+        };
+
+        var d_y_scale = function(domain) {
+            return d3.scaleLinear().domain(domain).range([25,450])
+        };
 
         var x_axis = d3.axisBottom().scale(x_axis_scale)
         var y_axis = d3.axisRight().scale(y_axis_scale)
@@ -98,24 +110,30 @@ d3.csv("https://gist.githubusercontent.com/curran/a08a1080b88344b0c8a7/raw/d546e
         var x_axis_group = svg.append("g").call(x_axis)
         var y_axis_group = svg.append("g").call(y_axis)
 
-
         console.log(x_init.text());
         console.log(y_init.text());
 
-
         function on_x_change() {
-            var newData = d3.select(this).property('value');
+            var new_x = x_selector.property('value')
+            
+            var current_y = y_selector.property('value')
+            
+            new_x_range = get_range(new_x)
+            console.log(new_x_range)
+            y_range = get_range(current_y)
+            console.log(y_range)
 
-            console.log(newData)
-        }
+            new_flowers = flowers.attr("transform", function(d,i) {
+                return "translate(" + d_x_scale(new_x_range) + "," + d_y_scale(y_range) + ")";
+            })
+        };
 
-        console.log(x_axis_scale(40))
+        function on_y_change() {
+            // var new_y = y_selector.property('value')
 
-        // var x_axis = d3.axisTop(x_axis_scale)
+            console.log(data.sepal_length)
 
-        // var y_axis_scale = d3.scaleLinear().domain().range([50,450])
-        // var y_axis = d3.axisLeft(y_axis_scale)
-                    
+        };    
 
         const p12 = d3.scaleOrdinal(d3.schemeCategory10).domain(species_set)
 
@@ -124,7 +142,7 @@ d3.csv("https://gist.githubusercontent.com/curran/a08a1080b88344b0c8a7/raw/d546e
                         .enter()
                         .append("g")
                         .attr("class", function(d) {
-                            return d.species
+                            return d['species']
                         })
                         .attr("transform", function (d) {
                             return "translate(" + x_axis_scale(d.sepal_length) + "," + y_axis_scale(d.sepal_width) + ")"; // need to tie this to the actual selection for x and y axis
@@ -134,16 +152,14 @@ d3.csv("https://gist.githubusercontent.com/curran/a08a1080b88344b0c8a7/raw/d546e
                                 .append("text")
                                 .attr("class", "species")
                                 .text(d.species)
-                                .style("fill", "white")
+                                .style("fill", "black")
                         })
                         .on("mouseout", function(d) {
                         d3.selectAll("text.species").remove()
                         });
         
         flowers.on("click", function(data) {
-
-            new_selection = flowers.filter(d => d.species == data.species);
-            
+            new_selection = flowers.filter(d => d.species == data.species);            
             var new_func = function(selection) {
                 if (selection.style("opacity") != 1) {
                     selection.style("opacity", 1) 
@@ -159,5 +175,19 @@ d3.csv("https://gist.githubusercontent.com/curran/a08a1080b88344b0c8a7/raw/d546e
                         .attr("fill", function(d) {
                             return(p12(d.species))
                         });
+
+        // console.log(flowers)
+        // flowers.each( function(d) {
+        //     console.log(d)
+        // })
+
+        flowers.each(function(d) {
+            console.log(d3.select(this).node().__data__)
+        })
+ 
+                      
+        // flowers._groups.forEach(function (d) {
+        //     console.log(d.__data__)
+        // })
 });
 
