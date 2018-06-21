@@ -1,9 +1,17 @@
-h1 {
-    color: red;
-    vertical-align: top
-    
+body {
+    font-size: 62.5%;
+    font-family: 'Shrikhand', sans-serif;
 }
 
-.species {
-    color: red;
+h1 { 
+    font-size: 5em
+}
+
+#dash-container { 
+    font-size: 1.5em;
+    font-family: 'Shrikhand', sans-serif;
+}
+
+select { 
+    font-family: 'Shrikhand', sans-serif;
 }
